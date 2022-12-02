@@ -4,6 +4,9 @@ describe:
 1、修改截图、视频保存的文件名称
 2、引用修改为绝对路径。在文件中引入了main入口，此时文件的__name__属性为‘__main__’而__package__属性为None，
 如果在这样的文件中使用相对路径引入，解释器就找不到父级包的任何信息，会存在报错。
+date: 2022-11-29
+describe:
+1、新增滤波器应用
 requirements:
 opencv-contrib-python 4.6.0.66
 python 3.7
@@ -13,6 +16,7 @@ python 3.7
 import cv2
 from Cameo.capturemanager import CaptureManager
 from Cameo.windowsmanager import WindowManager
+from Cameo import filters
 import time
 
 
@@ -22,6 +26,7 @@ class Cameo(object):
         self._windowManager = WindowManager('Cameo', self.onKeypress)
         # 视频管理类，有镜像功能，VideoCapture(0)多个设备时通过数字标定设备
         self._captureManager = CaptureManager(cv2.VideoCapture(0), self._windowManager, True)
+        self._curveFilter = filters.BGRPortraCurveFilter()
 
     def run(self):
         """
@@ -32,7 +37,8 @@ class Cameo(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
             if frame is not None:
-                pass
+                filters.strokeEdges(frame, frame)
+                self._curveFilter.apply(frame, frame)
             self._captureManager.exitFrame()  # 录屏、截屏
             self._windowManager.processEvents()  # 键盘控制
 
